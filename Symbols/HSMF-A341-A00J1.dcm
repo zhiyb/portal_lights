@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP HSMF-A341-A00J1
+D Broadcom HSMF-A341-A00J1, 470 nm 3 RGB LED, PLCC 4 SMD package
+K
+F https://docs.broadcom.com/docs/AV02-0501EN
+$ENDCMP
+#
+#End Doc Library

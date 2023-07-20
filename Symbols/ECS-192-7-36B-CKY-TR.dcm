@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP ECS-192-7-36B-CKY-TR
+D 19.2 MHz +/-10ppm Crystal 7pF 70 Ohms 4-SMD, No Lead
+K
+F https://ecsxtal.com/store/pdf/ECX-2236B.pdf
+$ENDCMP
+#
+#End Doc Library
