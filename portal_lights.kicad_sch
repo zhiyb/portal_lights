@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (title "FTDI debug probe")
+    (title "Ingress portal lights")
     (date "2023-07-19")
   )
 
