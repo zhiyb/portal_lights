@@ -11,6 +11,7 @@ cortex-m-rt = "0.7.3"
 cortex-m-semihosting = "0.5.0"
 # panic-halt = "0.2.0"
 panic-semihosting = "0.6.0"
+paste = "1.0.14"
 stm32f7 = { version = "0.15.1", features = ["stm32f7x2"] }
 
 # Uncomment for the panic example.
@@ -41,7 +42,7 @@ required-features = ["application"]
 
 [[bin]]
 name = "bootloader"
-path = "src/main.rs"
+path = "src/bootloader.rs"
 test = false
 bench = false
 required-features = ["bootloader"]

@@ -2,7 +2,6 @@
 #![no_main]
 
 pub mod rcc;
-pub mod rgbled;
 pub mod config;
 
 //use cortex_m::asm;
@@ -10,7 +9,7 @@ use cortex_m_rt::entry;
 use cortex_m_semihosting::hprintln;
 use cortex_m::peripheral::syst;
 
-use stm32f7::stm32f7x2::{interrupt, CorePeripherals, Peripherals, Interrupt, NVIC, RCC};
+use stm32f7::stm32f7x2::{CorePeripherals, Peripherals, NVIC, RCC};
 
 // pick a panicking behavior
 // use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch panics
@@ -31,33 +30,25 @@ fn init(p: &mut Peripherals, cp: &mut CorePeripherals) {
 
     cp.SCB.enable_icache();
     cp.SCB.enable_dcache(&mut cp.CPUID);
-
-    rgbled::rgbled_init(p);
 }
 
 #[entry]
 fn main() -> ! {
+    extern "C" {
+        // Symbol from linker script
+        static mut _app_start: u8;
+    }
+
+    let app_reset_entry: extern fn() -> !;
+    unsafe {
+        let app_reset_ptr = ((&_app_start as *const u8 as u32) + 4) as *const extern fn() -> !;
+        app_reset_entry = *app_reset_ptr as extern fn() -> !;
+    }
+
+    app_reset_entry();
+
     let mut p = Peripherals::take().unwrap();
     let mut cp = CorePeripherals::take().unwrap();
 
     init(&mut p, &mut cp);
-
-    let mut systick = cp.SYST;
-
-    let mut i: u32 = 0;
-    loop {
-        while !systick.has_wrapped() {}
-        rgbled::rgbled_test(&p, i);
-        i += 1;
-
-        //hprintln!("Hello, world!");
-    }
-
-    //panic!("Oops");
-    //asm::bkpt();
-}
-
-#[interrupt]
-fn EXTI0() {
-    hprintln!(".");
 }
