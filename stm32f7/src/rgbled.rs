@@ -15,9 +15,9 @@ use stm32f7::stm32f7x2::Peripherals;
 // PA5  -> G2
 // PA6  -> B2
 //
-// PA8  -> B3
 // PA9  -> R3
 // PA10 -> G3
+// PA8  -> B3
 //
 // PA3  -> A1
 // PA7  -> A1
@@ -113,7 +113,7 @@ pub fn rgbled_init(p: &Peripherals) {
 }
 
 pub fn rgbled_test(p: &Peripherals, i: u32) {
-    let s = (i / 100) % 16;
+    let s = i % 16;
     match s {
         0 =>
             p.GPIOA.odr.modify(|_, w| w

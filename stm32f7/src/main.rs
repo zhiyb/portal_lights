@@ -3,6 +3,7 @@
 
 pub mod rcc;
 pub mod rgbled;
+pub mod button;
 pub mod config;
 
 //use cortex_m::asm;
@@ -33,6 +34,7 @@ fn init(p: &mut Peripherals, cp: &mut CorePeripherals) {
     cp.SCB.enable_dcache(&mut cp.CPUID);
 
     rgbled::rgbled_init(p);
+    button::button_init(p);
 }
 
 #[entry]
@@ -47,7 +49,8 @@ fn main() -> ! {
     let mut i: u32 = 0;
     loop {
         while !systick.has_wrapped() {}
-        rgbled::rgbled_test(&p, i);
+        let btn = button::button_read(&p);
+        rgbled::rgbled_test(&p, (btn ^ (btn >> 4)) & 0xf);
         i += 1;
 
         //hprintln!("Hello, world!");
