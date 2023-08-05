@@ -1,6 +1,6 @@
 [package]
 authors = ["Norman Zhi <normanzyb@gmail.com>"]
-edition = "2018"
+edition = "2021"
 readme = "README.md"
 name = "portal-lights"
 version = "0.1.0"
@@ -26,12 +26,25 @@ stm32f7 = { version = "0.15.1", features = ["stm32f7x2"] }
 # features = ["stm32f303", "rt"]
 # version = "0.7.1"
 
+[features]
+default = ["application"]
+application = []
+bootloader = []
+
 # this lets you use `cargo fix`!
 [[bin]]
 name = "application"
 path = "src/main.rs"
 test = false
 bench = false
+required-features = ["application"]
+
+[[bin]]
+name = "bootloader"
+path = "src/main.rs"
+test = false
+bench = false
+required-features = ["bootloader"]
 
 [profile.release]
 codegen-units = 1 # better optimizations

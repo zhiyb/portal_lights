@@ -1,22 +1,17 @@
 MEMORY
 {
-  ITCM(xrw)	: ORIGIN = 0x00000000, LENGTH = 16k
-  DTCM(xrw)	: ORIGIN = 0x20000000, LENGTH = 64k
-  RAM(xrw)	: ORIGIN = 0x20010000, LENGTH = 176k
-  DMARAM(xrw)	: ORIGIN = 0x2003c000, LENGTH = 16k
+  ITCM(xrw)    : ORIGIN = 0x00000000, LENGTH = 16k
+  DTCM(xrw)    : ORIGIN = 0x20000000, LENGTH = 64k
+  RAM(xrw)     : ORIGIN = 0x20010000, LENGTH = 176k
+  DMARAM(xrw)  : ORIGIN = 0x2003c000, LENGTH = 16k
 
-  FLASH(xr)	: ORIGIN = 0x08000000, LENGTH = 512k
-  BOOT(xr)	: ORIGIN = 0x08000000, LENGTH = 16k
-  CONF(xr)	: ORIGIN = 0x08004000, LENGTH = 48k
-  LOADER(xr)	: ORIGIN = 0x08010000, LENGTH = 64k
-  PROGI(xr)	: ORIGIN = 0x00220000, LENGTH = 384k
-  PROG(xr)	: ORIGIN = 0x08020000, LENGTH = 384k
+  BOOTA(xr)    : ORIGIN = 0x08000000, LENGTH = 16k
+  BOOTI(xr)    : ORIGIN = 0x00200000, LENGTH = 16k
+  CONF(xr)     : ORIGIN = 0x08004000, LENGTH = 48k
+  LOADER(xr)   : ORIGIN = 0x08010000, LENGTH = 64k
+  PROGA(xr)    : ORIGIN = 0x08020000, LENGTH = 384k
+  PROGI(xr)    : ORIGIN = 0x00220000, LENGTH = 384k
 }
-
-/*
-REGION_ALIAS("FLASH", PROG);
-REGION_ALIAS("RAM", RAM);
-*/
 
 /* This is where the call stack will be allocated. */
 /* The stack is of the full descending type. */

@@ -2,10 +2,10 @@
 use stm32f7::stm32f7x2::Peripherals;
 
 /// Initialise system clock sources
-pub fn rcc_init(p: &Peripherals) {
-    let rcc = &p.RCC;
-    let pwr = &p.PWR;
-    let flash = &p.FLASH;
+pub fn rcc_init(p: &mut Peripherals) {
+    let rcc = &mut p.RCC;
+    let pwr = &mut p.PWR;
+    let flash = &mut p.FLASH;
 
     // Enable HSE
     rcc.cr.modify(|_, w| w.hseon().set_bit());

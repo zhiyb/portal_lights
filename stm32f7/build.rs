@@ -11,25 +11,27 @@
 //! The build script also sets the linker flags to tell it which link script to use.
 
 use std::env;
-use std::fs::File;
+use std::fs::{read, File};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn main() {
     // Put `memory.x` in our output directory and ensure it's
     // on the linker search path.
     let out = &PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    /*
     File::create(out.join("memory.x"))
         .unwrap()
         .write_all(include_bytes!("memory.x"))
         .unwrap();
+    */
     println!("cargo:rustc-link-search={}", out.display());
 
     // By default, Cargo will re-run a build script whenever
     // any file in the project changes. By specifying `memory.x`
     // here, we ensure the build script is only re-run when
     // `memory.x` is changed.
-    println!("cargo:rerun-if-changed=memory.x");
+    //println!("cargo:rerun-if-changed=memory.x");
 
     // Specify linker arguments.
 
@@ -39,5 +41,26 @@ fn main() {
     println!("cargo:rustc-link-arg=--nmagic");
 
     // Set the linker script to the one provided by cortex-m-rt.
-    println!("cargo:rustc-link-arg=-Tlink.x");
+    //println!("cargo:rustc-link-arg=-Tlink.x");
+
+    // No, use our custom linker scripts instead
+
+    // Use AXIM flash interface for debug build, ITCM for release build
+    let profile = env::var_os("PROFILE").unwrap();
+    #[cfg(feature = "application")]
+    let ld_top = if profile == "release" {"link_itcm.x"} else {"link_axim.x"};
+    #[cfg(feature = "bootloader")]
+    let ld_top = if profile == "release" {"link_itcm_bl.x"} else {"link_axim_bl.x"};
+    println!("cargo:rustc-link-arg=-T{}", ld_top);
+
+    // Copy and rerun when linker scripts change
+    let ld_files = vec![ld_top, "link_common.x", "memory.x"];
+
+    for f in ld_files {
+        File::create(out.join(f))
+            .unwrap()
+            .write_all(&read(Path::new("ld").join(f)).unwrap())
+            .unwrap();
+        println!("cargo:rerun-if-changed={}", f);
+    }
 }

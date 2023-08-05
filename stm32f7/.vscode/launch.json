@@ -7,13 +7,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            /* Configuration for the STM32F303 Discovery board */
+            /* Configuration for the application debug binary */
             "type": "cortex-debug",
             "request": "launch",
-            "name": "Debug (External)",
+            "name": "Debug application (External)",
             "servertype": "external",
             "cwd": "${workspaceRoot}",
-            "preLaunchTask": "Cargo Build (debug)",
+            "preLaunchTask": "Cargo Build application (debug)",
             "runToEntryPoint": "main",
             "executable": "./target/thumbv7em-none-eabihf/debug/application",
             /* Run `cargo build --example itm` and uncomment this line to run itm example */
@@ -31,6 +31,32 @@
                     { "type": "console", "label": "ITM", "port": 0 }
                 ]
             }
-        }
+        },
+        {
+            /* Configuration for the bootloader debug binary */
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "Debug bootloader (External)",
+            "servertype": "external",
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "Cargo Build bootloader (debug)",
+            "runToEntryPoint": "main",
+            "executable": "./target/thumbv7em-none-eabihf/debug/bootloader",
+            /* Run `cargo build --example itm` and uncomment this line to run itm example */
+            // "executable": "./target/thumbv7em-none-eabihf/debug/examples/itm",
+            "device": "STM32F722RET6",
+            "gdbPath": "gdb-multiarch",
+            "gdbTarget": ":3333",
+            "svdFile": "${workspaceRoot}/STM32F7x2.svd",
+            "swoConfig": {
+                "enabled": false,
+                "cpuFrequency": 8000000,
+                "swoFrequency": 2000000,
+                "source": "probe",
+                "decoders": [
+                    { "type": "console", "label": "ITM", "port": 0 }
+                ]
+            }
+        },
     ]
 }
