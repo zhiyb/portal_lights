@@ -5,6 +5,7 @@ use core::mem::MaybeUninit;
 use stm32f7::stm32f7x2::Peripherals;
 
 use crate::config::CONFIG;
+use crate::utility::{GAMMA, HCL_LUT};
 
 // RGB LED matrix connections:
 //
@@ -41,38 +42,6 @@ static mut LED_COLOUR: [[u8; 3]; LED_NUM] = [[0; 3]; LED_NUM];
 
 // GPIO update rate
 const LED_GPIO_RATE: usize = LED_SCAN_SIZE * 480;
-
-// Gamma correction = 4.0
-// https://victornpb.github.io/gamma-table-generator/
-const GAMMA: [u8; 256] = [
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
-    1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   2,
-    2,   3,   3,   3,   3,   3,   3,   3,   4,   4,   4,   4,   4,   5,   5,   5,
-    5,   5,   6,   6,   6,   6,   7,   7,   7,   7,   8,   8,   8,   9,   9,   9,
-    9,  10,  10,  11,  11,  11,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,
-   16,  17,  17,  18,  18,  19,  19,  20,  21,  21,  22,  23,  23,  24,  25,  25,
-   26,  27,  27,  28,  29,  30,  31,  31,  32,  33,  34,  35,  36,  37,  38,  39,
-   40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  52,  53,  54,  55,  57,
-   58,  59,  61,  62,  63,  65,  66,  68,  69,  71,  72,  74,  75,  77,  79,  80,
-   82,  84,  85,  87,  89,  91,  93,  95,  96,  98, 100, 102, 104, 107, 109, 111,
-  113, 115, 117, 120, 122, 124, 126, 129, 131, 134, 136, 139, 141, 144, 146, 149,
-  152, 155, 157, 160, 163, 166, 169, 172, 175, 178, 181, 184, 187, 190, 194, 197,
-  200, 203, 207, 210, 214, 217, 221, 224, 228, 232, 236, 239, 243, 247, 251, 255,
-];
-
-/// Set GPIO to output mode
-//macro_rules! set_gpio_out_pp_ls {
-//    ($gpio:expr, $pin:literal) => {
-//        paste! {
-//            $gpio.moder.modify(|_, w| w.[<moder $pin>]().output());
-//            $gpio.otyper.modify(|_, w| w.[<ot $pin>]().push_pull());
-//            $gpio.ospeedr.modify(|_, w| w.[<ospeedr $pin>]().low_speed());
-//        }
-//    };
-//}
 
 /// Initialise RGB LED matrix
 pub fn rgbled_init(p: &Peripherals) {
@@ -307,11 +276,7 @@ pub fn rgbled_set_all(rgb: [[u8; 3]; LED_NUM]) {
 }
 
 pub fn rgbled_test(n: usize, i: u32) {
-    let colour = [
-        ((i >>  0) & 0xff) as u8,
-        ((i >>  8) & 0xff) as u8,
-        ((i >> 16) & 0xff) as u8,
-    ];
+    let colour = HCL_LUT[(i as usize * HCL_LUT.len() / 2000) % HCL_LUT.len()];
 
     let mut rgb;
     if true {
