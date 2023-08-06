@@ -5,7 +5,7 @@ use core::mem::MaybeUninit;
 use stm32f7::stm32f7x2::Peripherals;
 
 use crate::config::CONFIG;
-use crate::utility::{GAMMA, HCL_LUT};
+use crate::utility::{GAMMA4_1024, HCL_LUT};
 
 // RGB LED matrix connections:
 //
@@ -29,7 +29,7 @@ use crate::utility::{GAMMA, HCL_LUT};
 const LED_NUM: usize = 12;
 
 // Allocated DMA RAM for refreshing LEDs
-const LED_GREYSCALE: usize = 256;
+const LED_GREYSCALE: usize = 1024;
 const LED_SCAN_OFF:  usize = 1;
 const LED_SCAN_ROWS: usize = 4;
 const LED_SCAN_SIZE: usize = LED_SCAN_ROWS * (LED_GREYSCALE + LED_SCAN_OFF);
@@ -242,18 +242,14 @@ fn rgbled_init_ram() {
 
 fn rgbled_update_row(mut row: usize) {
     let ram = unsafe {LED_RAM.assume_init_mut()};
-    let mut led = unsafe {[
-        LED_COLOUR[row + 4 * 0],
-        LED_COLOUR[row + 4 * 1],
-        LED_COLOUR[row + 4 * 2],
-    ]};
-    for n in &mut led {
-        for c in n {
-            *c = GAMMA[*c as usize];
+    let mut led: [[u16; 3]; 3] = [[0; 3]; 3];
+    for i in 0 .. 3 {
+        for c in 0 .. 3 {
+            led[i][c] = GAMMA4_1024[unsafe {LED_COLOUR[row + 4 * i][c]} as usize];
         }
     }
     row = [0, 2, 1, 3][row];
-    for gs in 0 ..= 255 as u8 {
+    for gs in 0 ..= LED_GREYSCALE as u16 {
         ram[row][gs as usize] = scan_value([
             (led[0][0] > gs, led[0][1] > gs, led[0][2] > gs),
             (led[1][0] > gs, led[1][1] > gs, led[1][2] > gs),
@@ -276,7 +272,8 @@ pub fn rgbled_set_all(rgb: [[u8; 3]; LED_NUM]) {
 }
 
 pub fn rgbled_test(n: usize, i: u32) {
-    let colour = HCL_LUT[(i as usize * HCL_LUT.len() / 2000) % HCL_LUT.len()];
+    //let colour = HCL_LUT[(i as usize * HCL_LUT.len() / 2000) % HCL_LUT.len()];
+    let colour = HCL_LUT[i as usize % HCL_LUT.len()];
 
     let mut rgb;
     if true {
