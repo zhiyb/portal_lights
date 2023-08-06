@@ -39,5 +39,5 @@ pub fn button_init(p: &Peripherals) {
 
 pub fn button_read(p: &Peripherals) -> u32 {
     let v = p.GPIOB.idr.read().bits();
-    return (v & 0x0f) | ((v >> 1) & 0xf0);
+    return ((v << 4) & 0xf0) | ((v >> 5) & 0x0f);
 }

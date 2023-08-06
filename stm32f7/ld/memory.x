@@ -17,6 +17,18 @@ MEMORY
 
 _app_start = ORIGIN(PROGI);
 
+/* Parameters of the DMA RAM, and allocation */
+_dmaram_start = ORIGIN(DMARAM);
+_dmaram_size  = LENGTH(DMARAM);
+
+SECTIONS {
+   .dmaram (NOLOAD) : ALIGN(16) {
+      . = ALIGN(16);
+      *(.dmaram .dmaram.*);
+      . = ALIGN(16);
+   } > DMARAM
+};
+
 /* This is where the call stack will be allocated. */
 /* The stack is of the full descending type. */
 /* You may want to use this variable to locate the call stack and static

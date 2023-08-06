@@ -2,6 +2,7 @@
 #![no_main]
 
 pub mod rcc;
+pub mod mpu;
 pub mod rgbled;
 pub mod button;
 pub mod config;
@@ -11,7 +12,7 @@ use cortex_m_rt::entry;
 use cortex_m_semihosting::hprintln;
 use cortex_m::peripheral::syst;
 
-use stm32f7::stm32f7x2::{interrupt, CorePeripherals, Peripherals, Interrupt, NVIC, RCC};
+use stm32f7::stm32f7x2::{interrupt, CorePeripherals, Peripherals};
 
 // pick a panicking behavior
 // use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch panics
@@ -24,14 +25,16 @@ use config::CONFIG;
 fn init(p: &mut Peripherals, cp: &mut CorePeripherals) {
     rcc::rcc_init(p);
 
+    // Configure MPU and enable cache
+    mpu::mpu_init(cp);
+    cp.SCB.enable_icache();
+    cp.SCB.enable_dcache(&mut cp.CPUID);
+
     let systick = &mut cp.SYST;
     systick.set_clock_source(syst::SystClkSource::Core);
     systick.set_reload(CONFIG.sysclk_rate / CONFIG.systick_rate);
     systick.clear_current();
     systick.enable_counter();
-
-    cp.SCB.enable_icache();
-    cp.SCB.enable_dcache(&mut cp.CPUID);
 
     rgbled::rgbled_init(p);
     button::button_init(p);
@@ -50,12 +53,11 @@ fn main() -> ! {
     loop {
         while !systick.has_wrapped() {}
         let btn = button::button_read(&p);
-        rgbled::rgbled_test(&p, (btn ^ (btn >> 4)) & 0xf);
+        rgbled::rgbled_test(btn as usize, i);
         i += 1;
-
-        //hprintln!("Hello, world!");
     }
 
+    //hprintln!("Hello, world!");
     //panic!("Oops");
     //asm::bkpt();
 }
